@@ -153,9 +153,50 @@ GameBoard* gameBoardNew() {
     // TODO: Usar un bucle para hacer malloc de las 20 filas (RowNode) y conectarlas.
     // TODO: El puntero first_row debe apuntar al primero de esos nodos.
     // TODO: Inicializar queue_head, queue_tail y first_particle en NULL.
-    
-    printf("Función gameBoardNew no implementada.\n");
-    return NULL;
+    GameBoard* board = malloc(sizeof(GameBoard));
+    if (board == NULL) {
+        // chequeo error de malloc
+        return NULL;
+    }
+    RowNode* newRow = malloc(sizeof(RowNode));
+    if (newRow == NULL) {
+        // chequeo error de malloc
+        free(board);
+        return NULL;
+    }
+    RowNode* firstRow = newRow; // Guardar el puntero al primer nodo
+    newRow->next = NULL;
+    for (int i=1; i<20; i++) {
+        RowNode* nextRow = malloc(sizeof(RowNode));
+        if (nextRow == NULL) {
+            // chequeo error de malloc
+            // Liberar memoria ya asignada
+            RowNode* current = firstRow;
+            while (current != NULL) {
+                RowNode* borrar = current;
+                current = current->next;
+                free(borrar);
+            }
+            free(board);
+            return NULL;
+        }
+        nextRow->next = NULL;
+        newRow->next = nextRow;
+        newRow = nextRow;
+    }
+    for (RowNode* current = firstRow; current != NULL; current = current->next) {
+        for (int j=0; j<GRID_COLS; j++) {
+            current->cells[j] = 0;
+        }
+    }
+    board->queue_head = NULL;
+    board->queue_tail = NULL;
+    board->first_particle = NULL;
+    board->current_piece.active = 0;
+    board->score = 0;
+    board->tick_timer = 0;
+    board->first_row = firstRow;
+    return board;
 }
 
 void gameBoardDelete(GameBoard* board) {
