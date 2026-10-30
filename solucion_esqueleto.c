@@ -208,6 +208,8 @@ void gameBoardDelete(GameBoard* board) {
     if (board == NULL) {
         return;
     }
+    // Liberar la memoria de las filas del tablero
+    // si first_row es NULL, no hay nada que liberar
     if (board->first_row == NULL) {
     }
     else {
@@ -222,6 +224,7 @@ void gameBoardDelete(GameBoard* board) {
         free(PrevRow);
     }
     // Liberar la memoria de las partículas
+    // si first_particle es NULL, no hay nada que liberar
     if (board->first_particle == NULL) {
     }
     else {
@@ -236,6 +239,7 @@ void gameBoardDelete(GameBoard* board) {
         free(prevParticle);
     }
     // Liberar la memoria de la cola de piezas
+    // si queue_head es NULL, no hay nada que liberar
     if (board->queue_head == NULL) {
     }
     else {
@@ -249,6 +253,7 @@ void gameBoardDelete(GameBoard* board) {
         }
         free(prevQueue);
     }
+    // Finalmente, liberar la estructura GameBoard
     free(board);
 }
 
@@ -256,7 +261,28 @@ void gameBoardAddParticle(GameBoard* board, float x, float y, int color) {
     // TODO: Crear un ParticleNode con memoria dinámica.
     // TODO: Inicializar x, y, velocidades aleatorias y un life_timer.
     // TODO: Agregarlo al principio de la lista enlazada simple de partículas.
-    printf("Función gameBoardAddParticle no implementada.\n");
+    if (board == NULL) {
+        return;
+    }
+    ParticleNode* newParticle = malloc(sizeof(ParticleNode));
+    if (newParticle == NULL) {
+        // chequeo error de malloc
+        return;
+    }
+    newParticle->x = x;
+    newParticle->y = y;
+    newParticle->vel_x = (rand() % 21 - 10) / 10.0f; // velocidad aleatoria entre -1.0 y 1.0
+    newParticle->vel_y = (rand() % 21 - 10) / 10.0f; // velocidad aleatoria entre -1.0 y 1.0
+    newParticle->color = color;
+    newParticle->life_timer = rand() % 31 + 30; // life_timer aleatorio entre 30 y 60
+    if (board->first_particle == NULL) {
+        newParticle->next = NULL;
+        board->first_particle = newParticle;
+    } else {
+        ParticleNode* oldFirst_particle = board->first_particle;
+        board->first_particle = newParticle;
+        newParticle->next = oldFirst_particle;
+    }
 }
 
 int gameBoardCheckAndClearLines(GameBoard* board) {
