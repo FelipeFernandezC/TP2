@@ -205,7 +205,51 @@ void gameBoardDelete(GameBoard* board) {
     // TODO: Recorrer y liberar todos los PieceQueueNode.
     // TODO: Recorrer y liberar todos los ParticleNode.
     // TODO: Finalmente, liberar la estructura GameBoard.
-    printf("Función gameBoardDelete no implementada.\n");
+    if (board == NULL) {
+        return;
+    }
+    if (board->first_row == NULL) {
+    }
+    else {
+        RowNode* CurrentRow = board->first_row;
+        RowNode* PrevRow = board->first_row;
+        CurrentRow = CurrentRow->next;
+        while (CurrentRow != NULL) {
+            free(PrevRow);
+            PrevRow = CurrentRow;
+            CurrentRow = CurrentRow->next;
+        }
+        free(PrevRow);
+    }
+    // Liberar la memoria de las partículas
+    if (board->first_particle == NULL) {
+    }
+    else {
+        ParticleNode* currentParticle = board->first_particle;
+        ParticleNode* prevParticle = board->first_particle;
+        currentParticle = currentParticle->next;
+        while (currentParticle != NULL) {
+            free(prevParticle);
+            prevParticle = currentParticle;
+            currentParticle = currentParticle->next;
+        }
+        free(prevParticle);
+    }
+    // Liberar la memoria de la cola de piezas
+    if (board->queue_head == NULL) {
+    }
+    else {
+        PieceQueueNode* currentQueue = board->queue_head;
+        PieceQueueNode* prevQueue = board->queue_head;
+        currentQueue = currentQueue->next;
+        while (currentQueue != NULL) {
+            free(prevQueue);
+            prevQueue = currentQueue;
+            currentQueue = currentQueue->next;
+        }
+        free(prevQueue);
+    }
+    free(board);
 }
 
 void gameBoardAddParticle(GameBoard* board, float x, float y, int color) {
