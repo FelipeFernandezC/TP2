@@ -81,18 +81,20 @@ GameBoard* game_board = NULL;
 char* strDuplicate(char* src) {
     // TODO: Contar los caracteres de src, reservar con malloc (no olvidar el '\0'),
     //       copiar todo y devolver el puntero nuevo.
-    int count = 0;
+
+    // Contar los caracteres de src (sin incluir el '\0')
+    int count = 0; 
     for(int i = 0; src[i] != '\0'; i++) {
             count++;
     }
-    char* dst = (char*)malloc((count + 1) * sizeof(char));
-    if(dst == NULL) {
+    char* dst = (char*)malloc((count + 1) * sizeof(char));      // Reservar memoria para el nuevo string (count + 1 para el terminador '\0')
+    if(dst == NULL) {    // Comprobar si malloc falló
         return NULL;
     } 
-    for(int i = 0; i < count; i++) {
+    for(int i = 0; i < count; i++) {    // Copiar caracter por caracter desde src a dst
         dst[i] = src[i];
     }
-    dst[count] = '\0';
+    dst[count] = '\0'; //Agregar el terminador '\0' al final del nuevo string
     return dst;
 }
 
@@ -100,7 +102,7 @@ int strCompare(char* s1, char* s2) {
     // TODO: Devolver 0 si son iguales, 1 si s1 < s2, -1 si s1 > s2.
     //       Ojo: es la convencion INVERSA a strcmp.
     int i = 0;
-    while (s1[i] != '\0' && s2[i] != '\0') {
+    while (s1[i] != '\0' && s2[i] != '\0') { //Comparar caracter por caracter hasta que uno o ambos de los strings llegue al terminador '\0'
         if (s1[i] < s2[i]) {
             return 1;
         } else if (s1[i] > s2[i]) {
@@ -108,11 +110,11 @@ int strCompare(char* s1, char* s2) {
         }
         i++;
     }
-    if (s1[i] == '\0' && s2[i] == '\0') {
+    if (s1[i] == '\0' && s2[i] == '\0') { //Si ambos strings llegaron al terminador '\0', son iguales
         return 0;
-    } else if (s1[i] == '\0') {
+    } else if (s1[i] == '\0') { //Si s1 llegó al terminador '\0' y s2 no, entonces s1 es menor que s2
         return 1;
-    } else {
+    } else { //Si s2 llegó al terminador '\0' y s1 no, entonces s1 es mayor que s2
         return -1;
     }
 }
@@ -122,27 +124,27 @@ char* strConcatenate(char* src1, char* src2) {
     //       Precondicion: src1 y src2 vienen de malloc y son punteros distintos.
     int count1 = 0;
     int count2 = 0;
-    for(int i = 0; src1[i] != '\0'; i++) {
+    for(int i = 0; src1[i] != '\0'; i++) {  // Contar los caracteres de src1 (sin incluir el terminador '\0')
         count1++;
     }
-    for(int i = 0; src2[i] != '\0'; i++) {
+    for(int i = 0; src2[i] != '\0'; i++) { // Contar los caracteres de src2 (sin incluir el terminador '\0')
         count2++;
     }
-    char* dst = (char*)malloc((count1 + count2 + 1) * sizeof(char));
-    if(dst == NULL) {
+    char* dst = (char*)malloc((count1 + count2 + 1) * sizeof(char)); // Reservar memoria para el nuevo string (count1 + count2 + 1 para el terminador '\0')
+    if(dst == NULL) { // Comprobar si malloc falló
         free (src1);
         free (src2);
         return NULL;
     }
-    for(int i = 0; i < count1; i++) {
+    for(int i = 0; i < count1; i++) { // Copiar caracter por caracter desde src1 a dst
         dst[i] = src1[i];
     }
-    for(int i = 0; i < count2; i++) {
+    for(int i = 0; i < count2; i++) { // Copiar caracter por caracter desde src2 a dst, empezando desde donde terminó src1
         dst[count1 + i] = src2[i];
     }
-    dst[count1 + count2] = '\0';
-    free(src1);
-    free(src2);
+    dst[count1 + count2] = '\0'; // Agregar el terminador '\0' al final del nuevo string
+    free(src1); // Liberar la memoria de src1
+    free(src2); // Liberar la memoria de src2
     return dst;
 }
 
@@ -165,12 +167,12 @@ GameBoard* gameBoardNew() {
         return NULL;
     }
     RowNode* firstRow = newRow; // Guardar el puntero al primer nodo
-    newRow->next = NULL;
+    newRow->next = NULL;        // Inicializar el siguiente nodo como NULL
     for (int i=1; i<20; i++) {
         RowNode* nextRow = malloc(sizeof(RowNode));
         if (nextRow == NULL) {
             // chequeo error de malloc
-            // Liberar memoria ya asignada
+            // Liberar memoria ya asignada y liberar el GameBoard
             RowNode* current = firstRow;
             while (current != NULL) {
                 RowNode* borrar = current;
@@ -180,15 +182,17 @@ GameBoard* gameBoardNew() {
             free(board);
             return NULL;
         }
-        nextRow->next = NULL;
-        newRow->next = nextRow;
-        newRow = nextRow;
+        // Si no fallo el malloc, inicializar el siguiente nodo y conectar con el anterior
+        nextRow->next = NULL;   // Inicializar el siguiente nodo como NULL
+        newRow->next = nextRow; // Conectar el nodo actual con el siguiente
+        newRow = nextRow;       // Mover el puntero al siguiente nodo
     }
-    for (RowNode* current = firstRow; current != NULL; current = current->next) {
+    for (RowNode* current = firstRow; current != NULL; current = current->next) { // Inicializar todas las celdas de cada fila en 0
         for (int j=0; j<GRID_COLS; j++) {
-            current->cells[j] = 0;
+            current->cells[j] = 0;  
         }
     }
+    // Inicializar los otros campos del GameBoard
     board->queue_head = NULL;
     board->queue_tail = NULL;
     board->first_particle = NULL;
@@ -213,47 +217,47 @@ void gameBoardDelete(GameBoard* board) {
     if (board->first_row == NULL) {
     }
     else {
-        RowNode* CurrentRow = board->first_row;
-        RowNode* PrevRow = board->first_row;
-        CurrentRow = CurrentRow->next;
-        while (CurrentRow != NULL) {
+        RowNode* CurrentRow = board->first_row; // Inicializar el puntero CurrentRow al primer nodo de la lista
+        RowNode* PrevRow = board->first_row;    // Inicializar el puntero PrevRow al primer nodo de la lista
+        CurrentRow = CurrentRow->next;          // Mover el puntero CurrentRow al siguiente nodo
+        while (CurrentRow != NULL) {            // Mientras CurrentRow no sea NULL, liberar el nodo anterior y avanzar los punteros
             free(PrevRow);
             PrevRow = CurrentRow;
             CurrentRow = CurrentRow->next;
         }
-        free(PrevRow);
+        free(PrevRow);  // liberar el último nodo (PrevRow) después de salir del bucle
     }
     // Liberar la memoria de las partículas
     // si first_particle es NULL, no hay nada que liberar
     if (board->first_particle == NULL) {
     }
     else {
-        ParticleNode* currentParticle = board->first_particle;
-        ParticleNode* prevParticle = board->first_particle;
-        currentParticle = currentParticle->next;
-        while (currentParticle != NULL) {
+        ParticleNode* currentParticle = board->first_particle;    // Inicializar el puntero currentParticle al primer nodo de la lista
+        ParticleNode* prevParticle = board->first_particle;      // Inicializar el puntero prevParticle al primer nodo de la lista
+        currentParticle = currentParticle->next;                // Mover el puntero currentParticle al siguiente nodo
+        while (currentParticle != NULL) {                      // Mientras currentParticle no sea NULL, liberar el nodo anterior y avanzar los punteros
             free(prevParticle);
             prevParticle = currentParticle;
             currentParticle = currentParticle->next;
         }
-        free(prevParticle);
+        free(prevParticle); // liberar el último nodo (prevParticle) después de salir del bucle
     }
     // Liberar la memoria de la cola de piezas
     // si queue_head es NULL, no hay nada que liberar
     if (board->queue_head == NULL) {
     }
     else {
-        PieceQueueNode* currentQueue = board->queue_head;
-        PieceQueueNode* prevQueue = board->queue_head;
-        currentQueue = currentQueue->next;
-        while (currentQueue != NULL) {
+        PieceQueueNode* currentQueue = board->queue_head; // Inicializar el puntero currentQueue al primer nodo de la lista
+        PieceQueueNode* prevQueue = board->queue_head;    // Inicializar el puntero prevQueue al primer nodo de la lista  
+        currentQueue = currentQueue->next;                  
+        while (currentQueue != NULL) {                     // Mientras currentQueue no sea NULL, liberar el nodo anterior y avanzar los punteros
             free(prevQueue);
             prevQueue = currentQueue;
             currentQueue = currentQueue->next;
         }
-        free(prevQueue);
+        free(prevQueue);    // liberar el último nodo (prevQueue) después de salir del bucle
     }
-    // Finalmente, liberar la estructura GameBoard
+    // liberar la estructura GameBoard
     free(board);
 }
 
@@ -275,13 +279,13 @@ void gameBoardAddParticle(GameBoard* board, float x, float y, int color) {
     newParticle->vel_y = (rand() % 21 - 10) / 10.0f; // velocidad aleatoria entre -1.0 y 1.0
     newParticle->color = color;
     newParticle->life_timer = rand() % 31 + 30; // life_timer aleatorio entre 30 y 60
-    if (board->first_particle == NULL) {
+    if (board->first_particle == NULL) {    // Si la lista de partículas está vacía, el nuevo nodo será el primero
         newParticle->next = NULL;
         board->first_particle = newParticle;
     } else {
-        ParticleNode* oldFirst_particle = board->first_particle;
-        board->first_particle = newParticle;
-        newParticle->next = oldFirst_particle;
+        ParticleNode* oldFirst_particle = board->first_particle;    // Guardar el puntero al primer nodo actual
+        board->first_particle = newParticle;                        // Actualizar el puntero first_particle al nuevo nodo
+        newParticle->next = oldFirst_particle;                      // Conectar el nuevo nodo con el antiguo primer nodo
     }
 }
 
@@ -294,38 +298,38 @@ int gameBoardCheckAndClearLines(GameBoard* board) {
     if (board == NULL) {
         return 0;
     }
-    int linesCleared = 0;
+    int linesCleared = 0;                   // Contador de líneas eliminadas
     RowNode* currentRow = board->first_row;
-    int RowIndex = 0;
-    while (currentRow != NULL) {
-        int isFull = 1;
+    int RowIndex = 0;                       // Índice de la fila actual (0 a 19)
+    while (currentRow != NULL) {            // Recorrer todas las filas del tablero
+        int isFull = 1;                     // Flag para indicar si la fila está llena
         for (int i = 0; i < GRID_COLS; i++) {
-            if (currentRow->cells[i] == 0) {
-                isFull = 0;
-                break;
+            if (currentRow->cells[i] == 0) {    // Si alguna celda está vacía, la fila no está llena
+                isFull = 0;                     // Marcar la fila como no llena
+                break;                          // Salir del bucle ya que no es necesario seguir comprobando
             }
         }
-        if (isFull == 1) {
+        if (isFull == 1) {                      // Si la fila está llena, desenlazarla y hacer free()
             RowNode* rowToDelete = currentRow;
             currentRow = currentRow->next;
-            // Desenlazar el RowNode lleno
-            // Caso: borrar el primer RowNode (first_row)
-            if (rowToDelete == board->first_row) {
-                RowNode* newFirstRow = malloc(sizeof(RowNode));
+            // Desenlazar el fila llena
+            // Caso: borrar la primer fila (first_row)
+            if (rowToDelete == board->first_row) {              // Si la fila a eliminar es la primera fila del tablero
+                RowNode* newFirstRow = malloc(sizeof(RowNode)); // Crear la nueva fila
                 if (newFirstRow == NULL) {
                     // chequeo error de malloc
                     return linesCleared;
                 }
-                for (int i = 0; i < GRID_COLS; i++) {
+                for (int i = 0; i < GRID_COLS; i++) {           // Inicializar todas las celdas de la nueva fila en 0
                     newFirstRow->cells[i] = 0;
                 }
-                newFirstRow->next = currentRow;
+                newFirstRow->next = currentRow;                 // Agregar la nueva fila al principio de la lista enlazada
                 board->first_row = newFirstRow;
-                for (int i = 0; i < GRID_COLS; i++) {
+                for (int i = 0; i < GRID_COLS; i++) {           // Agregar partículas para cada celda destruida con la función gameBoardAddParticle()
                     gameBoardAddParticle(board, OFFSET_X + i * CELL_SIZE + CELL_SIZE / 2, OFFSET_Y + RowIndex * CELL_SIZE + CELL_SIZE / 2, rowToDelete->cells[i]);
                 }
-                free(rowToDelete);
-                linesCleared++;
+                free(rowToDelete); // Liberar la memoria de la fila eliminada
+                linesCleared++;    // Incrementar el contador de líneas eliminadas
             } 
             // Caso: borrar un RowNode que no es el primero
             else {
@@ -334,20 +338,20 @@ int gameBoardCheckAndClearLines(GameBoard* board) {
                     // chequeo error de malloc
                     return linesCleared;
                 }
-                RowNode* prevRow = board->first_row;
-                while (prevRow->next != rowToDelete) {
-                    prevRow = prevRow->next;
+                RowNode* prevRow = board->first_row;        // Inicializar el puntero prevRow al primer nodo de la lista
+                while (prevRow->next != rowToDelete) {      // Avanzar el puntero prevRow hasta que apunte al nodo anterior al que se va a eliminar
+                    prevRow = prevRow->next;                
                 }
-                prevRow->next = currentRow;
-                for (int i = 0; i < GRID_COLS; i++) {
+                prevRow->next = currentRow;                 // Desenlazar el nodo a eliminar de la lista enlazada
+                for (int i = 0; i < GRID_COLS; i++) {       // Agregar partículas para cada celda destruida con la función gameBoardAddParticle()
                     gameBoardAddParticle(board, OFFSET_X + i * CELL_SIZE + CELL_SIZE / 2, OFFSET_Y + RowIndex * CELL_SIZE + CELL_SIZE / 2, rowToDelete->cells[i]);
                 }
-                free(rowToDelete);
-                linesCleared++;
+                free(rowToDelete);      // Liberar la memoria de la fila eliminada
+                linesCleared++;         // Incrementar el contador de líneas eliminadas
                 for (int i = 0; i < GRID_COLS; i++) {
                     newFirstRow->cells[i] = 0;
                 }
-                newFirstRow->next = board->first_row;
+                newFirstRow->next = board->first_row;   // Agregar la nueva fila al principio de la lista enlazada
                 board->first_row = newFirstRow;
             }
         }
@@ -355,7 +359,7 @@ int gameBoardCheckAndClearLines(GameBoard* board) {
             currentRow = currentRow->next;
 
         }
-        RowIndex++;   
+        RowIndex++;   // Incrementar el índice 'y' para la siguiente fila
     }
     return linesCleared;
 }
@@ -371,12 +375,15 @@ void gameBoardEnqueuePiece(GameBoard* board, int type) {
         // chequeo error de malloc
         return;
     }
-    newQueueNode->type = type;
-    newQueueNode->next = NULL;
-    if (board->queue_head == NULL && board->queue_tail == NULL) {
+    newQueueNode->type = type;  // Inicializar el tipo de la nueva pieza
+    newQueueNode->next = NULL;  // Inicializar el siguiente nodo como NULL
+
+    // Caso: la cola está vacía, el nuevo nodo será tanto el head como el tail
+    if (board->queue_head == NULL && board->queue_tail == NULL) {   
         board->queue_head = newQueueNode;
         board->queue_tail = newQueueNode;
     } else {
+        // Caso: la cola no está vacía, agregar el nuevo nodo al final de la cola y actualizar el puntero tail
         board->queue_tail->next = newQueueNode;
         board->queue_tail = newQueueNode;
     }
@@ -391,18 +398,20 @@ int gameBoardDequeuePiece(GameBoard* board, int* out_type) {
     if (board == NULL || board->queue_head == NULL) {
         return 0;
     }
-    int type = board->queue_head->type;
-    *out_type = type;
-    PieceQueueNode* nodeToDelete = board->queue_head;
+    int type = board->queue_head->type; // Guardar el tipo de la pieza en la variable out_type
+    *out_type = type;                   // Guardar el tipo de la pieza en el lugar donde apunta out_type
+    PieceQueueNode* nodeToDelete = board->queue_head; // Guardar el puntero al nodo que se va a eliminar
     //caso hay 1 elemento en la cola.
+    // Actualizar head y tail a NULL porque la cola queda vacía después de eliminar el nodo
     if (board->queue_head == board->queue_tail) {
         board->queue_head = NULL;
         board->queue_tail = NULL;
     } else {
         // caso hay mas de 1 elemento en la cola.
+        //el nuevo head es el siguiente nodo de la cola
         board->queue_head = board->queue_head->next;
     }
-    free(nodeToDelete);
+    free(nodeToDelete); // Liberar la memoria del nodo eliminado
     return 1;
 }
 
