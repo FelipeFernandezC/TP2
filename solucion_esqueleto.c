@@ -363,15 +363,47 @@ int gameBoardCheckAndClearLines(GameBoard* board) {
 void gameBoardEnqueuePiece(GameBoard* board, int type) {
     // TODO: Crear un PieceQueueNode con el 'type'.
     // TODO: Insertarlo al final de la cola (queue_tail) y actualizar punteros.
-    printf("Función gameBoardEnqueuePiece no implementada.\n");
+    if (board == NULL) {
+        return;
+    }
+    PieceQueueNode* newQueueNode = malloc(sizeof(PieceQueueNode));
+    if (newQueueNode == NULL) {
+        // chequeo error de malloc
+        return;
+    }
+    newQueueNode->type = type;
+    newQueueNode->next = NULL;
+    if (board->queue_head == NULL && board->queue_tail == NULL) {
+        board->queue_head = newQueueNode;
+        board->queue_tail = newQueueNode;
+    } else {
+        board->queue_tail->next = newQueueNode;
+        board->queue_tail = newQueueNode;
+    }
 }
 
 int gameBoardDequeuePiece(GameBoard* board, int* out_type) {
     // TODO: Si la cola está vacía, retornar 0.
     // TODO: Extraer el primer nodo (queue_head).
     // TODO: Guardar el type en la variable out_type, liberar el nodo y actualizar el head.
-    printf("Función gameBoardDequeuePiece no implementada.\n");
-    return 0;
+
+    // caso board vacio o cola vacio, devuelve 0
+    if (board == NULL || board->queue_head == NULL) {
+        return 0;
+    }
+    int type = board->queue_head->type;
+    *out_type = type;
+    PieceQueueNode* nodeToDelete = board->queue_head;
+    //caso hay 1 elemento en la cola.
+    if (board->queue_head == board->queue_tail) {
+        board->queue_head = NULL;
+        board->queue_tail = NULL;
+    } else {
+        // caso hay mas de 1 elemento en la cola.
+        board->queue_head = board->queue_head->next;
+    }
+    free(nodeToDelete);
+    return 1;
 }
 
 // ========= LOGICA DE DIBUJADO Y COLISIONES (NO MODIFICAR) =========
