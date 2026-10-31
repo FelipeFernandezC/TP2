@@ -291,8 +291,73 @@ int gameBoardCheckAndClearLines(GameBoard* board) {
     // TODO: Crear un nuevo RowNode vacío (lleno de ceros).
     // TODO: Insertar el nuevo RowNode en la CABEZA del tablero (board->first_row).
     // TODO: Por cada celda destruida, invocar a gameBoardAddParticle().
-    printf("Función gameBoardCheckAndClearLines no implementada.\n");
-    return 0;
+    if (board == NULL) {
+        return 0;
+    }
+    int linesCleared = 0;
+    RowNode* currentRow = board->first_row;
+    int RowIndex = 0;
+    while (currentRow != NULL) {
+        int isFull = 1;
+        for (int i = 0; i < GRID_COLS; i++) {
+            if (currentRow->cells[i] == 0) {
+                isFull = 0;
+                break;
+            }
+        }
+        if (isFull == 1) {
+            RowNode* rowToDelete = currentRow;
+            currentRow = currentRow->next;
+            // Desenlazar el RowNode lleno
+            // Caso: borrar el primer RowNode (first_row)
+            if (rowToDelete == board->first_row) {
+                RowNode* newFirstRow = malloc(sizeof(RowNode));
+                if (newFirstRow == NULL) {
+                    // chequeo error de malloc
+                    return linesCleared;
+                }
+                for (int i = 0; i < GRID_COLS; i++) {
+                    newFirstRow->cells[i] = 0;
+                }
+                newFirstRow->next = currentRow;
+                board->first_row = newFirstRow;
+                for (int i = 0; i < GRID_COLS; i++) {
+                    gameBoardAddParticle(board, OFFSET_X + i * CELL_SIZE + CELL_SIZE / 2, OFFSET_Y + RowIndex * CELL_SIZE + CELL_SIZE / 2, rowToDelete->cells[i]);
+                }
+                free(rowToDelete);
+                linesCleared++;
+            } 
+            // Caso: borrar un RowNode que no es el primero
+            else {
+                RowNode* newFirstRow = malloc(sizeof(RowNode));
+                if (newFirstRow == NULL) {
+                    // chequeo error de malloc
+                    return linesCleared;
+                }
+                RowNode* prevRow = board->first_row;
+                while (prevRow->next != rowToDelete) {
+                    prevRow = prevRow->next;
+                }
+                prevRow->next = currentRow;
+                for (int i = 0; i < GRID_COLS; i++) {
+                    gameBoardAddParticle(board, OFFSET_X + i * CELL_SIZE + CELL_SIZE / 2, OFFSET_Y + RowIndex * CELL_SIZE + CELL_SIZE / 2, rowToDelete->cells[i]);
+                }
+                free(rowToDelete);
+                linesCleared++;
+                for (int i = 0; i < GRID_COLS; i++) {
+                    newFirstRow->cells[i] = 0;
+                }
+                newFirstRow->next = board->first_row;
+                board->first_row = newFirstRow;
+            }
+        }
+        else {
+            currentRow = currentRow->next;
+
+        }
+        RowIndex++;   
+    }
+    return linesCleared;
 }
 
 void gameBoardEnqueuePiece(GameBoard* board, int type) {
