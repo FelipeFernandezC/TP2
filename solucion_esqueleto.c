@@ -198,6 +198,10 @@ GameBoard* gameBoardNew() {
     board->queue_tail = NULL;
     board->first_particle = NULL;
     board->current_piece.active = 0;
+    board->current_piece.col = 0;
+    board->current_piece.row = 0;
+    board->current_piece.type = 0;
+    board->current_piece.rotation = 0;
     board->score = 0;
     board->tick_timer = 0;
     board->first_row = firstRow;
@@ -621,19 +625,19 @@ void correrTests() {
     char* s5 = strDuplicate("mundo");
     char* s6 = strConcatenate(s4, s5);
     assert (s6 != NULL);
-    assert (s6[0] == 'h' && s6[10]== '\0');
+    assert (s6[0] == 'h' && s6[1] == 'o' && s6[2] == 'l' && s6[3] == 'a' && s6[4] == ' ' && s6[5] == 'm' && s6[6] == 'u' && s6[7] == 'n' && s6[8] == 'd' && s6[9] == 'o' && s6[10]== '\0');
     free(s6);
     char* s7 = strDuplicate("");
     char* s8 = strDuplicate("abc");
     char* s9 = strConcatenate(s7, s8);
     assert (s9 != NULL);
-    assert (s9[0] == 'a' && s9[3]== '\0');
+    assert (s9[0] == 'a' && s9[1] == 'b' && s9[2] == 'c' && s9[3]== '\0');
     free(s9);
     char* s10 = strDuplicate("abc");
     char* s11 = strDuplicate("");
     char* s12 = strConcatenate(s10, s11);
     assert (s12 != NULL);
-    assert (s12[0] == 'a' && s12[3]== '\0');
+    assert (s12[0] == 'a' && s12[1] == 'b' && s12[2] == 'c' && s12[3]== '\0');
     free(s12);
     char* s13 = strDuplicate("");
     char* s14 = strDuplicate("");
@@ -642,6 +646,7 @@ void correrTests() {
     assert (s15[0] == '\0');
     free(s15);
     //tests de cola
+    //Crear un GameBoard y verificar que se inicializa correctamente
     GameBoard* testBoard = gameBoardNew();
     assert (testBoard != NULL);
     assert (testBoard->queue_head == NULL && testBoard->queue_tail == NULL);
@@ -649,6 +654,10 @@ void correrTests() {
     assert (testBoard->score == 0);
     assert (testBoard->tick_timer == 0);
     assert (testBoard->current_piece.active == 0);
+    assert(testBoard->current_piece.col == 0);
+    assert(testBoard->current_piece.row == 0);
+    assert(testBoard->current_piece.type == 0);
+    assert(testBoard->current_piece.rotation == 0);
     assert(testBoard->first_row != NULL);
 
     int rowCount = 0;
