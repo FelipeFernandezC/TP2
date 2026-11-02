@@ -591,7 +591,164 @@ void correrTests() {
     //    gameBoardCheckAndClearLines y comprobar que first_row es la fila nueva vacia y que
     //    la lista sigue teniendo 20 filas.
     // Liberar toda la memoria pedida en los tests (strings y tableros).
-    printf("Tests no implementados.\n");
+
+    //tests de strDuplicate
+    char* s1 = strDuplicate("");
+    char* s2 = strDuplicate("x");
+    char* s3 = strDuplicate("abc");
+    
+    assert (s1 != NULL);
+    assert (s1[0] == '\0');
+    assert (s2 != NULL);
+    assert (s2[0] == 'x' && s2[1] == '\0');
+    assert (s3 != NULL);
+    assert (s3[0] == 'a' && s3[1] == 'b' && s3[2] == 'c' && s3[3] == '\0');   
+
+    free(s1);
+    free(s2);
+    free(s3);
+    //tests de strCompare
+    assert (strCompare("", "") == 0);
+    assert (strCompare("a", "a") == 0);
+    assert (strCompare("a", "b") == 1);
+    assert (strCompare("b", "a") == -1);
+    assert (strCompare("abc", "ab")== -1);
+    assert (strCompare("ab", "abc")== 1);
+    assert (strCompare("abcd","abcd")== 0);
+    //tests de strConcatenate
+    char* s4 = strDuplicate("hola ");
+    char* s5 = strDuplicate("mundo");
+    char* s6 = strConcatenate(s4, s5);
+    assert (s6 != NULL);
+    assert (s6[0] == 'h' && s6[10]== '\0');
+    free(s6);
+    char* s7 = strDuplicate("");
+    char* s8 = strDuplicate("abc");
+    char* s9 = strConcatenate(s7, s8);
+    assert (s9 != NULL);
+    assert (s9[0] == 'a' && s9[3]== '\0');
+    free(s9);
+    char* s10 = strDuplicate("abc");
+    char* s11 = strDuplicate("");
+    char* s12 = strConcatenate(s10, s11);
+    assert (s12 != NULL);
+    assert (s12[0] == 'a' && s12[3]== '\0');
+    free(s12);
+    char* s13 = strDuplicate("");
+    char* s14 = strDuplicate("");
+    char* s15 = strConcatenate(s13, s14);
+    assert (s15 != NULL);
+    assert (s15[0] == '\0');
+    free(s15);
+    //tests de cola
+    GameBoard* testBoard = gameBoardNew();
+    assert (testBoard != NULL);
+    assert (testBoard->queue_head == NULL && testBoard->queue_tail == NULL);
+    assert (testBoard->first_particle == NULL);
+    assert (testBoard->score == 0);
+    assert (testBoard->tick_timer == 0);
+    assert (testBoard->current_piece.active == 0);
+    assert(testBoard->first_row != NULL);
+
+    int rowCount = 0;
+    RowNode* current = testBoard->first_row;
+    while (current != NULL) {
+        for (int i = 0; i < GRID_COLS; i++) {
+                assert(current->cells[i] == 0); // Verificar que todas las celdas de la fila estén inicializadas en 0
+            }
+        rowCount++;             // Incrementar el contador de filas
+        current = current->next;// Avanzar al siguiente nodo de la lista
+        }
+
+    assert(rowCount == GRID_ROWS);// Verificar que hay 20 filas en la lista
+
+    // 1. Hacemos cinco Push
+    gameBoardEnqueuePiece(testBoard, 1);
+    gameBoardEnqueuePiece(testBoard, 2);
+    gameBoardEnqueuePiece(testBoard, 3);
+    gameBoardEnqueuePiece(testBoard, 4);
+    gameBoardEnqueuePiece(testBoard, 5);
+
+    // 2. Hacemos cinco Pop y comprobamos el orden FIFO
+    int out_type = -1;
+
+    for (int i = 1; i <= 5; i++) {
+        assert(gameBoardDequeuePiece(testBoard, &out_type) == 1);
+        assert(out_type == i);
+    }
+    // 3. Sexto Pop: la cola está vacía
+    out_type = 99;
+
+    assert(gameBoardDequeuePiece(testBoard, &out_type) == 0);
+    assert(out_type == 99);
+
+    assert(testBoard->queue_head == NULL);
+    assert(testBoard->queue_tail == NULL);
+
+    // 4. Volvemos a hacer un Push
+    gameBoardEnqueuePiece(testBoard, 8);
+
+    // 5. Comprobamos que podamos extraerlo
+    assert(gameBoardDequeuePiece(testBoard, &out_type) == 1);
+    assert(out_type == 8);
+
+    // 6. Comprobamos que la cola volvió a quedar vacía
+    assert(testBoard->queue_head == NULL);
+    assert(testBoard->queue_tail == NULL);
+    gameBoardDelete(testBoard);
+
+    //tests de gameBoardCheckAndClearLines
+    //test de gameBoardCheckAndClearLines: llenamos una sola linea y vemos si elimina y crea la nueva fila vacia correctamente.
+    GameBoard* testBoard2 = gameBoardNew();
+    assert (testBoard2 != NULL);
+    RowNode* OriginalFirstRow = testBoard2->first_row;
+    RowNode* lastRow = testBoard2->first_row;
+    while (lastRow->next != NULL) {
+        lastRow = lastRow->next;
+    }
+    for (int i = 0; i < GRID_COLS; i++) {
+        lastRow->cells[i] = 1; // Llenar la fila de abajo con celdas > 0
+    }
+    int linesCleared = gameBoardCheckAndClearLines(testBoard2);
+    assert(linesCleared == 1); // Comprobar que se eliminó una línea
+    assert(testBoard2->first_row->next == OriginalFirstRow); // Comprobar que el siguiente nodo de la nueva fila es la antigua primera fila
+    int newRowCount = 0;
+    RowNode* currentRow = testBoard2->first_row;
+    while (currentRow != NULL) {
+        newRowCount++;
+        currentRow = currentRow->next;
+    }
+    assert(newRowCount == GRID_ROWS); // Comprobar que sigo teniendo 20 filas en total
+    for (int i = 0; i < GRID_COLS; i++) {
+        assert(testBoard2->first_row->cells[i] == 0); // Comprobar que la nueva fila está vacía
+    }
+    gameBoardDelete(testBoard2);
+    //Test de gameBoardCheckAndClearLines: llenamos dos lineas y vemos si elimina y crea las nuevas filas vacias correctamente.
+    GameBoard* testBoard3 = gameBoardNew();
+    assert (testBoard3 != NULL);
+    RowNode* OriginalFirstRow3 = testBoard3->first_row;
+    RowNode* thirdRow3 = testBoard3->first_row->next->next;
+    for (int i = 0; i < GRID_COLS; i++) {
+        OriginalFirstRow3->cells[i] = 1; // Llenar la primera fila con celdas > 0
+        OriginalFirstRow3->next->cells[i] = 1; // Llenar la segunda fila con celdas > 0
+    }
+    int linesCleared3 = gameBoardCheckAndClearLines(testBoard3);
+    assert(linesCleared3 == 2); // Comprobar que se eliminaron dos líneas
+    assert(testBoard3->first_row->next->next == thirdRow3); // Comprobar que el tercer nodo de la lista es el mismo que antes 
+    for (int i = 0; i < GRID_COLS; i++) {
+        assert(testBoard3->first_row->cells[i] == 0);
+        assert(testBoard3->first_row->next->cells[i] == 0);
+    }
+    int rowCount3 = 0;
+    RowNode* current3 = testBoard3->first_row;
+
+    while (current3 != NULL) {
+        rowCount3++;
+        current3 = current3->next;
+    }
+    assert(rowCount3 == GRID_ROWS);// Comprobar que sigo teniendo 20 filas en total
+
+    gameBoardDelete(testBoard3);
 }
 
 // Compara contra "--test" sin depender de string.h ni del Ejercicio 1.
